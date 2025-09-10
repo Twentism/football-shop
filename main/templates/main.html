@@ -12,20 +12,6 @@
             padding: 0;
         }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 40px;
-            font-size: 14px;
-        }
-
-        header a {
-            text-decoration: none;
-            color: #444;
-            margin-left: 20px;
-        }
-
         main {
             max-width: 900px;
             margin: 120px auto;
@@ -51,25 +37,15 @@
             margin-top: 8px;
         }
 
-        footer {
-            font-size: 14px;
-            color: #666;
-            text-align: center;
-            padding: 40px 20px;
-        }
     </style>
 </head>
 <body>
     <main>
         <h1>{{ app_name }}</h1>
-        <div class="subtitle">the Unexpected.</div>
 
         <p class="info"><strong>Your Name:</strong> {{ name }}</p>
         <p class="info"><strong>Your Class:</strong> {{ class }}</p>
     </main>
 
-    <footer>
-        © Melanton Gabriel Siregar. {{ app_name }}
-    </footer>
 </body>
 </html>
