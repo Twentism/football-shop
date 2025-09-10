@@ -5,7 +5,7 @@ Answers:
 I started by creating a new Django project and app, then added the app to INSTALLED_APPS so Django knows it exists. Next, I built the Product model with the six required fields, threw in extras like stock and brand, and registered it in the admin for quick testing. I connected urls.py to a view in views.py that fetches products via the model and passes them to an HTML template. Finally, I ran makemigrations and migrate to turn my model into a real database table and tested everything locally before pushing it out.
 
 2. diagram
-![alt text][(http://url/to/img.png)](https://github.com/Twentism/football-shop/blob/master/Blank%20board.png?raw=true)]
+![alt text][(https://github.com/Twentism/football-shop/blob/master/Blank%20board.png?raw=true)]
 
 4. Role of settings.py
 Think of settings.py as the project’s control center / room, it decides what apps to load, where the database lives, where to find templates, and how to serve static files. It also controls middleware, security (like ALLOWED_HOSTS and CSRF protection), and logging. Without it, Django wouldn’t know how to stitch together the moving parts of the project. In short, it’s the “brain” of the app, and changing it can make or break our deployment.
