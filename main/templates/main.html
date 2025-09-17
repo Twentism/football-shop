@@ -1,51 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ app_name }}</title>
-    <style>
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background: #fdfdfd;
-            color: #111;
-            margin: 0;
-            padding: 0;
-        }
+{% extends 'base.html' %}
 
-        main {
-            max-width: 900px;
-            margin: 120px auto;
-            padding: 0 20px;
-            text-align: left;
-        }
+{% block content %}
+<main>
+    <h1>Football Shop</h1>
 
-        h1 {
-            font-size: 80px;
-            font-weight: bold;
-            margin: 0;
-            line-height: 1;
-        }
+    <p><strong>Name:</strong> {{ name }}</p>
+    <p><strong>Class:</strong> {{ class }}</p>
 
-        .subtitle {
-            font-size: 28px;
-            margin: 10px 0 40px;
-        }
+    <a href="{% url 'main:create_product' %}">
+        <button>+ Add Product</button>
+    </a>
 
-        .info {
-            font-size: 16px;
-            color: #555;
-            margin-top: 8px;
-        }
+    <hr>
 
-    </style>
-</head>
-<body>
-    <main>
-        <h1>{{ app_name }}</h1>
+    {% if not product_list %}
+        <p>No products available in Football Shop.</p>
+    {% else %}
+        {% for product in product_list %}
+        <div>
+            <h2>
+                <a href="{% url 'main:show_product' product.id %}">
+                    {{ product.name }}
+                </a>
+            </h2>
 
-        <p class="info"><strong>Your Name:</strong> {{ name }}</p>
-        <p class="info"><strong>Your Class:</strong> {{ class }}</p>
-    </main>
+            <p>
+                <b>Price:</b> Rp{{ product.price }}<br>
+                <b>Category:</b> {{ product.get_category_display }}
+                {% if product.is_featured %} | <b>Featured</b>{% endif %}
+                {% if product.is_hot %} | <b>Hot</b>{% endif %}
+                | Views: {{ product.views|default:"0" }}
+            </p>
 
-</body>
-</html>
+            {% if product.thumbnail %}
+                <img src="{{ product.thumbnail }}" alt="thumbnail" width="150" height="100"><br>
+            {% endif %}
+
+            <p>{{ product.description|truncatewords:25 }}...</p>
+
+            <p>
+                <a href="{% url 'main:show_product' product.id %}">
+                    <button>View Product</button>
+                </a>
+            </p>
+        </div>
+        <hr>
+        {% endfor %}
+    {% endif %}
+</main>
+{% endblock content %}

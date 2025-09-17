@@ -33,7 +33,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", 'melanton-gabriel-footballshop.pbp.cs.ui.ac.id']
 
-
+CSRF_TRUSTED_ORIGINSS = [
+    "https://melanton-gabriel-footballshop.pbp.cs.ui.ac.id/"
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -61,10 +63,11 @@ ROOT_URLCONF = 'football_shop.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
