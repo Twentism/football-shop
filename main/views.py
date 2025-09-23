@@ -22,7 +22,7 @@ def show_main(request):
 
     context = {
         'app_name' : 'Football Shop',
-        'name': 'Melanton Gabriel Siregar',
+        'name': request.user.username,
         'class': 'PBP KI',
         'product_list': products,
         'last_login': request.COOKIES.get('last_login', 'Never'),
