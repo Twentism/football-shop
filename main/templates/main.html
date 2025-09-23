@@ -11,7 +11,20 @@
         <button>+ Add Product</button>
     </a>
 
+    <a href="{% url 'main:logout' %}">
+        <button>Logout</button>
+    </a>
+
+    <h5>Last login session: {{ last_login }}</h5>
+
     <hr>
+
+    <a href="?filter=all">
+        <button type="button">All Products</button>
+    </a>
+    <a href="?filter=my">
+        <button type="button">My Products</button>
+    </a> 
 
     {% if not product_list %}
         <p>No products available in Football Shop.</p>

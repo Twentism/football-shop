@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 class Product(models.Model):
@@ -17,6 +18,7 @@ class Product(models.Model):
     is_featured = models.BooleanField(default=False)
     is_hot = models.BooleanField(default=False)
     views = models.IntegerField(default=0)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def increment_views(self):
         self.views += 1
