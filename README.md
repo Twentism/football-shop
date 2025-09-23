@@ -36,4 +36,15 @@ Photos from Postman:
 ![xml ss](https://github.com/user-attachments/assets/2933a715-94bf-42f4-8725-dc2c6fcf271f)
 ![json ss](https://github.com/user-attachments/assets/3fa253e9-c6d9-467e-8c36-9e564c6b178a)
 
+README for Assignment 4
+1. AuthenticationForm is Django’s built-in login form that checks username and password. It’s good because it’s ready to use, secure, and integrates with Django easily. The downside is it’s basic, not flexible for custom logins like email or 2FA, and you still need to style or extend it for bigger apps.
+
+2. Authentication is proving who the user is, while authorization is checking what they can do. Django does authentication with the User model, sessions, and login functions, and authorization with groups, permissions, and decorators like login_required.
+
+3. Sessions keep data safe on the server, which is good for sensitive info, but they add server load. Cookies are light and simple, but they’re stored on the client and can be stolen or altered. Usually you combine both, using sessions for secure data and cookies for lighter stuff like preferences.
+
+4. Cookies are not secure by default, because they can be stolen with XSS or abused with CSRF. Django reduces the risk with csrf_token, signed cookies, and settings like HttpOnly, Secure, and SameSite, so you just need to enable them properly in production.
+
+5. I made the HTML templates for register, login, and logout, then updated views.py to handle each form and used login(request, user) when the login form was valid. In urls.py I added the paths for register, login, and logout so the pages were connected. I also kept models.py in sync with migrations so the data stored properly. Finally, I tested the flow by registering, logging in, opening protected pages, and logging out to confirm everything worked.
+
 
