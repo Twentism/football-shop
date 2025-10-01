@@ -47,4 +47,14 @@ README for Assignment 4
 
 5. I made the HTML templates for register, login, and logout, then updated views.py to handle each form and used login(request, user) when the login form was valid. In urls.py I added the paths for register, login, and logout so the pages were connected. I also kept models.py in sync with migrations so the data stored properly. Finally, I tested the flow by registering, logging in, opening protected pages, and logging out to confirm everything worked.
 
+README for Assignment 5
+1. CSS Selector Priority: When multiple selectors target the same element, inline styles have the highest priority, followed by ID selectors, then class/attribute/pseudo-class selectors, and lastly element/pseudo-element selectors. If two rules have the same specificity, the one that appears last in the CSS file is applied.
+
+2. Responsive Design: Responsive design is important because it makes web apps usable on all devices, especially mobile, improves user experience, and helps SEO. Apps like Twitter and Instagram show good responsive design since their layouts adapt smoothly. Older government or news sites often lack responsive design, forcing users to zoom or scroll. The difference is that responsive apps use Flexbox, Grid, and media queries, while non-responsive ones rely on fixed widths.
+
+3. Box Model: The box model has four parts—content, padding, border, and margin. Padding is space inside the element between content and border, border is the line surrounding it, and margin is the space outside separating the element from others. Example: margin: 20px; border: 2px solid black; padding: 10px;.
+
+4. Layout Systems: Flexbox is a one-dimensional layout system that arranges items in rows or columns with flexible alignment, useful for navbars, buttons, and centering content. Grid is a two-dimensional system that defines rows and columns together, useful for full-page layouts, galleries, and dashboards.
+
+5. Implementation Steps: I first updated the Django templates and connected them to a CSS file. Then I wrote selectors using elements, classes, and IDs to test specificity. After that, I added responsive design with the viewport meta tag and media queries. I applied box model properties like margin, border, and padding to control spacing. For layouts, I used Flexbox in the navbar and footer, and Grid in the product listing so it adapts to different screens. Finally, I tested the site on desktop and mobile views to check if both platforms do well with the design.
 
