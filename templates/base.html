@@ -1,46 +1,54 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Football Shop{% endblock title %}</title>
+    
+    {% block meta %}{% endblock meta %}
+    
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Global stylesheet -->
+    <link rel="stylesheet" href="{% static 'css/global.css' %}" />
+
     <style>
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background: #fdfdfd;
-            color: #111;
-            margin: 0;
-            padding: 0;
-        }
+      body {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        background: #fdfdfd;
+        color: #111;
+        margin: 0;
+        padding: 0;
+      }
 
-        main {
-            max-width: 900px;
-            margin: 120px auto;
-            padding: 0 20px;
-            text-align: left;
-        }
+      main {
+        max-width: 900px;
+        margin: 120px auto;
+        padding: 0 20px;
+        text-align: left;
+      }
 
-        h1 {
-            font-size: 80px;
-            font-weight: bold;
-            margin: 0;
-            line-height: 1;
-        }
+      h1 {
+        font-size: 80px;
+        font-weight: bold;
+        margin: 0;
+        line-height: 1;
+      }
 
-        .subtitle {
-            font-size: 28px;
-            margin: 10px 0 40px;
-        }
+      .subtitle {
+        font-size: 28px;
+        margin: 10px 0 40px;
+      }
 
-        .info {
-            font-size: 16px;
-            color: #555;
-            margin-top: 8px;
-        }
+      .info {
+        font-size: 16px;
+        color: #555;
+        margin-top: 8px;
+      }
     </style>
-</head>
-<body>
-    <main>
-        {% block content %}{% endblock content %}
-    </main>
-</body>
+  </head>
+  <body>
+    {% block content %}{% endblock content %}
+  </body>
 </html>
