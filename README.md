@@ -47,4 +47,24 @@ README for Assignment 4
 
 5. I made the HTML templates for register, login, and logout, then updated views.py to handle each form and used login(request, user) when the login form was valid. In urls.py I added the paths for register, login, and logout so the pages were connected. I also kept models.py in sync with migrations so the data stored properly. Finally, I tested the flow by registering, logging in, opening protected pages, and logging out to confirm everything worked.
 
+README for Assignment 5
+1. CSS Selector Priority: When multiple selectors target the same element, inline styles have the highest priority, followed by ID selectors, then class/attribute/pseudo-class selectors, and lastly element/pseudo-element selectors. If two rules have the same specificity, the one that appears last in the CSS file is applied.
 
+2. Responsive Design: Responsive design is important because it makes web apps usable on all devices, especially mobile, improves user experience, and helps SEO. Apps like Twitter and Instagram show good responsive design since their layouts adapt smoothly. Older government or news sites often lack responsive design, forcing users to zoom or scroll. The difference is that responsive apps use Flexbox, Grid, and media queries, while non-responsive ones rely on fixed widths.
+
+3. Box Model: The box model has four parts—content, padding, border, and margin. Padding is space inside the element between content and border, border is the line surrounding it, and margin is the space outside separating the element from others. Example: margin: 20px; border: 2px solid black; padding: 10px;.
+
+4. Layout Systems: Flexbox is a one-dimensional layout system that arranges items in rows or columns with flexible alignment, useful for navbars, buttons, and centering content. Grid is a two-dimensional system that defines rows and columns together, useful for full-page layouts, galleries, and dashboards.
+
+5. Implementation Steps: I first updated the Django templates and connected them to a CSS file. Then I wrote selectors using elements, classes, and IDs to test specificity. After that, I added responsive design with the viewport meta tag and media queries. I applied box model properties like margin, border, and padding to control spacing. For layouts, I used Flexbox in the navbar and footer, and Grid in the product listing so it adapts to different screens. Finally, I tested the site on desktop and mobile views to check if both platforms do well with the design.
+
+README for Assignment 6
+1. A synchronous request makes the browser wait until the server sends a response before continuing — the page freezes or reloads during that time. In contrast, an asynchronous request (AJAX) lets the browser send and receive data from the server in the background without reloading the page. This means users can continue interacting with the page while new data is being fetched or updated.
+
+2. When a user triggers an AJAX call in Django (like submitting a form or clicking a button), JavaScript sends an asynchronous HTTP request to a Django view through a specific URL endpoint. The view processes the request (GET or POST), interacts with the database if needed, and returns a JsonResponse instead of a full HTML page. The JavaScript function then handles this JSON data to update only the necessary part of the webpage dynamically.
+
+3. AJAX allows pages to update content without a full page reload, making the application faster and more responsive. It reduces server load and bandwidth usage because only parts of the page are refreshed. AJAX also provides smoother user interaction, ideal for features like live search, real-time validation, and infinite scrolling. In contrast, regular rendering in Django reloads the entire page, which is slower and less seamless.
+
+4. To ensure security, Django’s built-in CSRF protection must be included by sending the CSRF token in AJAX requests. Authentication data should always be sent over HTTPS to prevent interception. Server-side validation must also be enforced, not just client-side, to avoid malicious users bypassing checks. Additionally, Django’s session and authentication frameworks should be used instead of manually handling credentials in JavaScript.
+
+5. AJAX greatly enhances user experience by making web interactions faster and smoother. Instead of reloading entire pages, users see instant updates, like live comment sections or product lists updating automatically. This creates a modern, app-like feel and reduces frustration caused by waiting for reloads. For example, e-commerce sites use AJAX to update shopping carts dynamically, improving responsiveness and engagement.
