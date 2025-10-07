@@ -96,46 +96,57 @@
 <!-- Modal Toggle Functions -->
 <script>
   function showModal() {
-      const modal = document.getElementById('crudModal');
-      const modalContent = document.getElementById('crudModalContent');
-
-      modal.classList.remove('hidden'); 
-      setTimeout(() => {
-        modalContent.classList.remove('opacity-0', 'scale-95');
-        modalContent.classList.add('opacity-100', 'scale-100');
-      }, 50); 
+    const modal = document.getElementById('crudModal');
+    const modalContent = document.getElementById('crudModalContent');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+      modalContent.classList.remove('opacity-0', 'scale-95');
+      modalContent.classList.add('opacity-100', 'scale-100');
+    }, 50);
   }
 
   function hideModal() {
-      const modal = document.getElementById('crudModal');
-      const modalContent = document.getElementById('crudModalContent');
-
-      modalContent.classList.remove('opacity-100', 'scale-100');
-      modalContent.classList.add('opacity-0', 'scale-95');
-
-      setTimeout(() => {
-        modal.classList.add('hidden');
-      }, 150); 
+    const modal = document.getElementById('crudModal');
+    const modalContent = document.getElementById('crudModalContent');
+    modalContent.classList.remove('opacity-100', 'scale-100');
+    modalContent.classList.add('opacity-0', 'scale-95');
+    setTimeout(() => modal.classList.add('hidden'), 150);
   }
 
-  async function addProductEntry() {
-  await fetch("{% url 'main:add_product_entry_ajax' %}", {
-    method: "POST",
-    body: new FormData(document.querySelector('#productForm')),
+  // Helper: get CSRF token from Django
+  function getCSRFToken() {
+    const cookieValue = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
+    return cookieValue ? cookieValue.pop() : '';
+  }
+
+  async function addProductEntry(e) {
+    e.preventDefault(); // prevent form reload
+
+    const form = document.querySelector('#productForm');
+    const formData = new FormData(form);
+
+    const response = await fetch("{% url 'main:add_product_entry_ajax' %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCSRFToken(),
+      },
+      body: formData,
+    });
+
+    if (response.ok) {
+      showToast('Product added successfully!', '', 'success');
+      hideModal();
+      form.reset();
+
+      // trigger reload of product list in main.html
+      document.dispatchEvent(new CustomEvent('productAdded'));
+    } else {
+      showToast('Failed to add product', '', 'error');
+    }
+  }
+
+  // Attach submit listener once
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('#productForm').addEventListener('submit', addProductEntry);
   });
-
-  // Reset the form and hide modal
-  document.getElementById("productForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-  addProductEntry();
-  });
-
-  // Show toast notification
-  showToast('Product added successfully!', '', 'success');
-
-  // Dispatch custom event to notify main.html about new data
-  document.dispatchEvent(new CustomEvent('productAdded'));
-
-  return false;
- }
 </script>
