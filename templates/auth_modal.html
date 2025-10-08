@@ -1,0 +1,118 @@
+{# templates/auth_modal.html #}
+<div id="authModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg w-full max-w-md p-6 relative">
+    <button type="button" onclick="hideAuthModal()" class="absolute right-4 top-4 text-gray-500 hover:text-gray-700">✕</button>
+    <h3 id="authTitle" class="text-xl font-semibold mb-4 text-center">Sign In</h3>
+
+    <div class="mb-4 text-center">
+      <button id="switchToLogin" class="px-3 py-1 rounded-l-md bg-green-600 text-white">Login</button>
+      <button id="switchToRegister" class="px-3 py-1 rounded-r-md bg-gray-100 text-gray-700">Register</button>
+    </div>
+
+    <!-- Login / Register Form -->
+    <form id="authForm" class="space-y-4">
+      {% csrf_token %}
+      <input type="hidden" id="authType" name="authType" value="login">
+
+      <div id="emailField" class="hidden">
+        <label for="authEmail" class="block text-sm font-medium text-gray-700">Email</label>
+        <input id="authEmail" name="email" type="email" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="you@example.com">
+      </div>
+
+      <div>
+        <label for="authUsername" class="block text-sm font-medium text-gray-700">Username</label>
+        <input id="authUsername" name="username" type="text" required class="w-full border border-gray-300 rounded px-3 py-2" placeholder="username">
+      </div>
+
+      <div>
+        <label for="authPassword" class="block text-sm font-medium text-gray-700">Password</label>
+        <input id="authPassword" name="password" type="password" required class="w-full border border-gray-300 rounded px-3 py-2" placeholder="password">
+      </div>
+
+      <div id="registerExtra" class="hidden space-y-3">
+        <div>
+          <label for="authPassword2" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+          <input id="authPassword2" name="password2" type="password" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="confirm password">
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-3">
+        <button type="button" onclick="hideAuthModal()" class="px-4 py-2 bg-gray-200 rounded">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Fallback if toast is not loaded yet
+  if (typeof showToast !== 'function') {
+    window.showToast = function(title, message, type='info') {
+      try { alert(title + (message ? ' — ' + message : '')); } catch(e) {}
+    };
+  }
+
+  function showAuthModal() { document.getElementById('authModal').classList.remove('hidden'); }
+  function hideAuthModal() { document.getElementById('authModal').classList.add('hidden'); }
+
+  // Elements
+  const authForm = document.getElementById('authForm');
+  const authTypeInput = document.getElementById('authType');
+
+  function getCSRFToken() {
+    const cookieValue = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
+    return cookieValue ? cookieValue.pop() : '';
+  }
+
+  authForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const type = authTypeInput.value || 'login';
+    const url = type === 'login'
+      ? "{% url 'main:ajax_login_user' %}"
+      : "{% url 'main:ajax_register_user' %}";
+
+    // build payload
+    const formData = new FormData();
+    formData.append('username', document.getElementById('authUsername').value || '');
+    formData.append('password', document.getElementById('authPassword').value || '');
+
+    if (type === 'register') {
+      formData.append('password1', document.getElementById('authPassword').value || '');
+      formData.append('password2', document.getElementById('authPassword2').value || '');
+      const eEl = document.getElementById('authEmail');
+      if (eEl && eEl.value) formData.append('email', eEl.value);
+    }
+
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCSRFToken(), 'Accept': 'application/json' },
+        body: formData
+      });
+
+      // Try parse JSON (catch parse errors)
+      let data;
+      try { data = await res.json(); } catch (err) { data = null; }
+
+      if (res.ok) {
+        // Show success toast (prefer server message)
+        const msg = (data && data.message) ? data.message : (type === 'login' ? 'Logged in' : 'Registered');
+        showToast(msg, '', 'success');
+
+        hideAuthModal();
+
+        // For login: reload so server-side session/header reflect logged in state
+        if (type === 'login') {
+          setTimeout(() => window.location.reload(), 600);
+        }
+      } else {
+        const msg = data && data.message ? data.message : 'Request failed';
+        showToast(msg, '', 'error');
+      }
+    } catch (err) {
+      console.error('Auth AJAX error:', err);
+      showToast('Network error. Please try again', '', 'error');
+    }
+  });
+</script>

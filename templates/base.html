@@ -9,9 +9,6 @@
     {% block meta %}
     
     {% endblock meta %}
-
-    {% include 'toast.html' %}
-    {% include 'modal.html' %}
     
     <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -57,5 +54,14 @@
   </head>
   <body>
     {% block content %}{% endblock content %}
+
+    {% include 'toast.html' %}
+    
+    <!-- Global Scripts -->
+    <script src="{% static 'js/toast.js' %}"></script>
+
+    {% include 'modal.html' %}
+    {% include 'auth_modal.html' %}
+    {% include 'confirm_delete.html' %}
   </body>
 </html>

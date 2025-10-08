@@ -102,4 +102,41 @@
     </div>
   </div>
 </div>
+
+{{ toast_message|json_script:"toast-data" }}
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // This will now correctly display toasts from register or logout
+    const toastDataElement = document.getElementById('toast-data');
+    if (toastDataElement) {
+        const message = JSON.parse(toastDataElement.textContent);
+        if (message) {
+            showToast(message.text, '', message.type);
+        }
+    }
+
+    const loginForm = document.querySelector("form");
+    loginForm.addEventListener("submit", async function(e) {
+        e.preventDefault();
+        const formData = new FormData(loginForm);
+        try {
+            const response = await fetch("{% url 'main:ajax_login_user' %}", {
+                method: "POST",
+                body: formData,
+                headers: { "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value }
+            });
+            const data = await response.json();
+            if (data.status === "success") {
+                // On success, we just redirect. The server has already set the message.
+                window.location.href = "{% url 'main:show_main' %}";
+            } else {
+                showToast('Login Failed', data.message, 'error');
+            }
+        } catch (error) {
+            showToast('Error', 'An unexpected error occurred.', 'error');
+        }
+    });
+});
+</script>
 {% endblock content %}

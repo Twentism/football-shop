@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
@@ -12,6 +13,7 @@ from django.urls import reverse
 from django.utils.html import strip_tags
 from django.core import serializers
 import datetime
+import json
 
 # Create your views here.
 @login_required(login_url='/login')
@@ -31,6 +33,11 @@ def show_main(request):
         'last_login': request.COOKIES.get('last_login', 'Never'),
     }
 
+    # Check for a toast message from a previous page (like login)
+    if 'toast_message' in request.session:
+        context['toast_message'] = request.session['toast_message']
+        del request.session['toast_message']
+        
     return render(request, "main.html", context)
 
 def create_product(request):
@@ -88,9 +95,10 @@ def show_xml_by_id(request, pk):
     except Product.DoesNotExist:
         return HttpResponse(status=404)
 
-def show_json_by_id(request, product_id):
+def show_json_by_id(request, pk): 
     try:
-        product = Product.objects.select_related('user').get(pk=product_id)
+        # And use 'pk' in the query as well
+        product = Product.objects.select_related('user').get(pk=pk) 
         data = {
             'id': str(product.id),
             'name': product.name,
@@ -121,23 +129,32 @@ def register(request):
     return render(request, 'register.html', context)
 
 def login_user(request):
-   if request.method == 'POST':
-      form = AuthenticationForm(data=request.POST)
+    form = AuthenticationForm(request, data=request.POST or None)
+    context = {'form': form}
+    
+    # Check for an incoming toast message from register or logout
+    if 'toast_message' in request.session:
+        context['toast_message'] = request.session.pop('toast_message')
 
-      if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            response = HttpResponseRedirect(reverse("main:show_main"))
-            response.set_cookie('last_login', str(datetime.datetime.now()))
-            return response
+    if request.method == 'POST' and form.is_valid():
+        user = form.get_user()
+        login(request, user)
+        
+        # This is for the non-AJAX form submission, which we'll unify just in case
+        request.session['toast_message'] = {"text": "Logged in successfully!", "type": "success"}
+        
+        response = HttpResponseRedirect(reverse("main:show_main"))
+        response.set_cookie('last_login', str(datetime.datetime.now()))
+        return response
 
-   else:
-      form = AuthenticationForm(request)
-   context = {'form': form}
-   return render(request, 'login.html', context)
+    return render(request, 'login.html', context)
 
 def logout_user(request):
     logout(request)
+    
+    # This correctly sets the session message before redirecting
+    request.session['toast_message'] = {"text": "You have been successfully logged out.", "type": "info"}
+
     response = HttpResponseRedirect(reverse('main:login'))
     response.delete_cookie('last_login')
     return response
@@ -160,27 +177,115 @@ def delete_product(request, id):
     product.delete()
     return redirect(reverse('main:show_main'))
 
+@login_required
+@csrf_exempt # Add this decorator since you're using fetch POST
 def add_product_entry_ajax(request):
-    name = strip_tags(request.POST.get("name"))  
-    description = strip_tags(request.POST.get("description"))  
-    price = request.POST.get("price")
-    category = strip_tags(request.POST.get("category"))  
-    thumbnail = strip_tags(request.POST.get("thumbnail"))  
-    is_featured = request.POST.get("is_featured") == 'on'
-    is_hot = request.POST.get("is_hot") == 'on'
-    user = request.user if request.user.is_authenticated else None
+    if request.method == 'POST':
+        name = strip_tags(request.POST.get("name"))
+        price = request.POST.get("price")
+        description = strip_tags(request.POST.get("description"))
+        category = strip_tags(request.POST.get("category"))
+        thumbnail = strip_tags(request.POST.get("thumbnail"))
+        
+        # FIXED: Check for the string 'true' from the form data
+        is_featured = request.POST.get("is_featured") == 'true'
+        user = request.user
 
-    # Create a new product
-    new_product = Product(
-        name=name,
-        description=description,
-        price=price,
-        category=category,
-        thumbnail=thumbnail,
-        is_featured=is_featured,
-        is_hot=is_hot,
-        user=user
-    )
-    new_product.save()
+        new_product = Product.objects.create(
+            name=name,
+            price=price,
+            description=description,
+            category=category,
+            thumbnail=thumbnail,
+            is_featured=is_featured,
+            user=user
+        )
 
-    return HttpResponse(b"CREATED", status=201)
+        # IMPORTANT: We no longer need serializers.serialize.
+        # Returning the data in the same format as your show_json view makes your API consistent.
+        data = {
+            'id': str(new_product.id),
+            'name': new_product.name,
+            'price': new_product.price,
+            'description': new_product.description,
+            'category': new_product.category,
+            'thumbnail': new_product.thumbnail,
+            'is_featured': new_product.is_featured,
+            'is_hot': new_product.is_hot,
+            'views': new_product.views,
+            'user_id': new_product.user.id if new_product.user else None,
+        }
+        
+        return JsonResponse(data, status=201)
+
+    return JsonResponse({"status": "error", "message": "Invalid request method"}, status=400)
+
+@csrf_exempt
+@require_POST
+def update_product_ajax(request, id):
+    try:
+        product = Product.objects.get(pk=id)
+        product.name = strip_tags(request.POST.get("name"))
+        product.description = strip_tags(request.POST.get("description"))
+        product.price = request.POST.get("price")
+        product.category = strip_tags(request.POST.get("category"))
+        product.thumbnail = strip_tags(request.POST.get("thumbnail"))
+        product.is_featured = request.POST.get("is_featured") == 'true'
+        product.is_hot = request.POST.get("is_hot") == 'true'
+        product.save()
+        return JsonResponse({"status": "success", "message": "Product updated!"})
+    except Product.DoesNotExist:
+        return JsonResponse({"status": "error", "message": "Product not found!"}, status=404)
+
+@csrf_exempt
+@require_POST
+def delete_product_ajax(request, id):
+    try:
+        product = Product.objects.get(pk=id)
+        product.delete()
+        return JsonResponse({"status": "success", "message": "Product deleted!"})
+    except Product.DoesNotExist:
+        return JsonResponse({"status": "error", "message": "Product not found!"}, status=404)
+    
+@csrf_exempt
+@require_POST
+def ajax_login_user(request):
+    username = request.POST.get("username")
+    password = request.POST.get("password")
+    user = authenticate(username=username, password=password)
+
+    if user:
+        login(request, user)
+
+        # Optionally set last_login cookie using response if you plan to redirect later
+        request.session['toast_message'] = {"text": "Logged in successfully!", "type": "success"}
+        request.session.save()
+
+        # Return JSON with message and optional user info (client uses it)
+        return JsonResponse({"status": "success", "message": "Logged in successfully!"})
+    else:
+        return JsonResponse({"status": "error", "message": "Invalid username or password"}, status=400)
+
+@csrf_exempt
+@require_POST
+def ajax_register_user(request):
+    username = request.POST.get("username")
+    password1 = request.POST.get("password1")
+    password2 = request.POST.get("password2")
+
+    if not username or not password1 or not password2:
+        return JsonResponse({"status": "error", "message": "Missing fields"}, status=400)
+
+    if password1 != password2:
+        return JsonResponse({"status": "error", "message": "Passwords do not match!"}, status=400)
+
+    if User.objects.filter(username=username).exists():
+        return JsonResponse({"status": "error", "message": "Username already exists!"}, status=400)
+
+    # Create user
+    User.objects.create_user(username=username, password=password1)
+
+    request.session['toast_message'] = {"text": "Account created! Please log in.", "type": "success"}
+    request.session.save()
+
+    return JsonResponse({"status": "success", "message": "Account created! Please log in."})
